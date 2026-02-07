@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Valentine?</title>
+  <style>
+    
+    :root{
+      --white: #ffffff;
+      --shadow: 0 18px 55px rgba(0,0,0,.22);
+      --radius: 22px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      min-height:100vh;
+      overflow-x:hidden;
+      color:#1b1b1b;
+    }
+    .screen{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      position:relative;
+    }
+
+   /* ====== Screen 1: flowers ====== */
+.flowers{
+  position: relative;
+  overflow: hidden;
+
+  background:
+    radial-gradient(900px 600px at 15% 20%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.15) 55%, transparent 70%),
+    radial-gradient(900px 700px at 85% 25%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.10) 55%, transparent 70%),
+    linear-gradient(140deg, #f7e6ff 0%, #e7fff0 40%, #fff2df 100%);
+  background-size: 130% 130%;
+  animation: bgDrift 12s ease-in-out infinite alternate;
+}
+
+
+/* this overlay is what we move with the mouse (very visible) */
+.flowers::before{
+  content:"";
+  position:absolute;
+  inset:-60px;
+  pointer-events:none;
+  z-index:0;
+
+  /* REMOVE overlay blend – it makes it washed */
+  opacity: 0.95;
+
+  /* Sharper blobs: hard stops (not smooth fade) */
+  background:
+    radial-gradient(320px 240px at 20% 25%,
+      rgba(255,255,255,.75) 0 45%,
+      rgba(255,255,255,0) 60%),
+    radial-gradient(340px 260px at 80% 30%,
+      rgba(255,255,255,.65) 0 45%,
+      rgba(255,255,255,0) 60%),
+    radial-gradient(220px 200px at 30% 75%,
+      rgba(255,120,180,.35) 0 40%,
+      rgba(255,120,180,0) 58%),
+    radial-gradient(240px 220px at 75% 80%,
+      rgba(120,255,190,.26) 0 40%,
+      rgba(120,255,190,0) 58%);
+
+  /* basically no blur */
+  filter: blur(0px);
+
+  transform: translate3d(var(--px, 0px), var(--py, 0px), 0) scale(1.06);
+  transition: transform 40ms ease-out;
+  will-change: transform;
+}
+
+/* soft flower-ish blobs */
+.petals{
+  position:absolute;
+  inset:-80px;
+  pointer-events:none;
+  z-index:1;
+  opacity: 0.95;
+
+  background:
+    radial-gradient(150px 110px at 12% 20%,
+      rgba(255,182,193,.75) 0 40%,
+      rgba(255,182,193,0) 58%),
+    radial-gradient(170px 120px at 35% 35%,
+      rgba(255,220,160,.70) 0 40%,
+      rgba(255,220,160,0) 58%),
+    radial-gradient(160px 120px at 70% 20%,
+      rgba(190,255,210,.62) 0 40%,
+      rgba(190,255,210,0) 58%),
+    radial-gradient(190px 140px at 82% 58%,
+      rgba(196,180,255,.62) 0 40%,
+      rgba(196,180,255,0) 58%),
+    radial-gradient(170px 130px at 22% 72%,
+      rgba(255,190,220,.65) 0 40%,
+      rgba(255,190,220,0) 58%);
+
+  filter: blur(0px);
+  transform: translate3d(0,0,0) scale(1.06);
+  will-change: transform;
+}
+
+/* keep card above overlays */
+.card{
+  position: relative;
+  z-index: 2;
+
+  width:min(520px, 100%);
+  background: rgba(255,255,255,.62);
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  padding: 22px 18px 18px;
+  text-align:center;
+}
+
+    .seal{
+      font-size: 64px;
+      line-height: 1;
+      margin: 2px 0 10px;
+      user-select:none;
+    }
+    .title{
+      font-size: clamp(26px, 4.8vw, 38px);
+      margin: 4px 0 12px;
+      letter-spacing: -0.02em;
+    }
+    .sub{
+      margin: 0 0 18px;
+      opacity: .85;
+      font-size: 14px;
+    }
+
+    .btnRow{
+      display:flex;
+      gap: 12px;
+      justify-content:center;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    button{
+      border:0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      cursor:pointer;
+      font-weight: 750;
+      letter-spacing: 0.01em;
+      box-shadow: 0 10px 22px rgba(0,0,0,.12);
+      transition: transform .15s ease, filter .15s ease;
+      will-change: transform;
+      touch-action: manipulation;
+    }
+    button:active{ transform: scale(0.98); }
+    .yes{
+      background: linear-gradient(135deg, #ff4aa2, #ff7cc5);
+      color:white;
+      transform: scale(var(--yesScale, 1));
+    }
+    .no{
+      background: rgba(0,0,0,.08);
+      color:#1b1b1b;
+    }
+
+    .prompt{
+      margin-top: 14px;
+      font-size: 15px;
+      font-weight: 650;
+      opacity: .9;
+      min-height: 22px;
+    }
+
+    /* ====== Screen 2: letter ====== */
+    .pink{
+      background:
+        radial-gradient(900px 650px at 20% 15%, rgba(255,255,255,.55), transparent 55%),
+        radial-gradient(900px 700px at 80% 30%, rgba(255,255,255,.45), transparent 55%),
+        linear-gradient(160deg, #ff9fd1 0%, #ff5aa7 45%, #ff2c7f 100%);
+      color: #1b1b1b;
+    }
+
+    .letterWrap{
+      width:min(760px, 100%);
+      display:grid;
+      gap: 14px;
+      place-items:center;
+    }
+
+    .heart{
+      font-size: 62px;
+      filter: drop-shadow(0 16px 25px rgba(0,0,0,.22));
+      user-select:none;
+    }
+
+    .letterCard{
+      width:min(720px, 100%);
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .letterHeader{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+    .letterHeader h2{
+      margin:0;
+      font-size: 20px;
+      letter-spacing: -0.01em;
+    }
+    .tiny{
+      margin: 2px 0 0;
+      font-size: 13px;
+      opacity: .75;
+    }
+
+    .scrollBox{
+      max-height: min(62vh, 520px);
+      overflow:auto;
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,.10);
+      background: rgba(255,255,255,.85);
+    }
+    .scrollBox p{
+      margin: 0 0 12px;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    .sign{
+      margin-top: 6px;
+      font-weight: 800;
+    }
+
+    .fadeIn{
+      animation: fade .35s ease both;
+    }
+    @keyframes fade{
+      from{ opacity:0; transform: translateY(10px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    .hidden{ display:none !important; }
+
+    /* confetti hearts */
+    .floatLayer{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .floater{
+      position:absolute;
+      bottom: -20px;
+      font-size: 18px;
+      opacity: .85;
+      animation: rise linear forwards;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.22));
+    }
+    @keyframes rise{
+      from{ transform: translateY(0) scale(.9); opacity: 0; }
+      10%{ opacity: .9; }
+      to{ transform: translateY(-110vh) scale(1.25); opacity: 0; }
+    }
+    /* ===== Confetti ===== */
+.confetti{
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  animation: confettiFly var(--dur, 900ms) ease-out forwards;
+}
+
+@keyframes confettiFly{
+  0%{
+    opacity: 1;
+    transform: translate(-50%, -50%) translate(0,0) rotate(0deg) scale(1);
+  }
+  100%{
+    opacity: 0;
+    transform: translate(-50%, -50%)
+      translate(var(--dx), var(--dy))
+      rotate(var(--rot))
+      scale(0.9);
+  }
+}
+/* ===== Balloons (Screen 2) ===== */
+#screenLetter{ position: relative; overflow: hidden; }
+
+.balloonLayer{
+  position:absolute;
+  inset:0;
+  pointer-events:auto; /* IMPORTANT */
+  z-index: 1;
+}
+
+
+/* keep letter above balloons */
+.letterWrap{
+  position: relative;
+  z-index: 2;
+}
+
+
+    
+.balloon{
+  position:absolute;
+  left: 50%;
+  top: -80px;
+  width: 54px;
+  height: 70px;
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: 0 14px 28px rgba(0,0,0,.18);
+  transform: translate(-50%, 0) rotate(0deg);
+  will-change: transform;
+  opacity: .95;
+
+  /* ✅ ADD THESE */
+  -webkit-user-drag: none;
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+}
+
+.balloon.dragging{
+  cursor: grabbing;
+}
+
+
+.balloon::after{
+  content:"";
+  position:absolute;
+  left: 50%;
+  bottom: -34px;
+  width: 2px;
+  height: 40px;
+  background: rgba(255,255,255,.65);
+  transform: translateX(-50%);
+  opacity: .75;
+}
+
+.balloon::before{
+  content:"";
+  position:absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  background: rgba(0,0,0,.10);
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 2px;
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="floatLayer" id="floatLayer"></div>
+
+  <!-- SCREEN 1 -->
+  <section class="screen flowers" id="screenAsk">
+    <div class="petals" aria-hidden="true"></div>
+  
+    <div class="card fadeIn">
+      <div class="seal" aria-hidden="true">🦭</div>
+      <h1 class="title">Will you be my Valentine?</h1>
+      <p class="sub">There is a correct answer. Choose wisely.</p>
+
+      <div class="btnRow">
+        <button class="yes" id="yesBtn" type="button">Yes</button>
+        <button class="no" id="noBtn" type="button">No</button>
+      </div>
+
+      <div class="prompt" id="promptText"></div>
+    </div>
+  </section>
+
+  <!-- SCREEN 2 -->
+  <section class="screen pink hidden" id="screenLetter">
+    <div class="balloonLayer" id="balloonLayer" aria-hidden="true"></div>
+    <div class="letterWrap fadeIn">
+      <div class="heart" aria-hidden="true">💗</div>
+
+      <div class="letterCard">
+        <div class="letterHeader">
+          <div>
+            <h2>My love Letter</h2>
+            <div class="tiny">Scroll to read. Take your time.</div>
+          </div>
+          <button class="no" id="replayBtn" type="button" title="Go back">↩</button>
+        </div>
+
+        <div class="scrollBox" id="letterBox">
+          <!-- EDIT YOUR LETTER HERE -->
+          <p>Hi my pretty girl, happy valentines day and happy 6th month anniversary,</p>
+          <p>
+            I genuinely can’t believe it’s already been six months together. These past couple of months and even that month and a bit of “just friends”  have been some of the best moments of my life. So many things on my               bucket list are being ticked off, and I’m so incredibly grateful that it’s been with you.
+            I’m just so stupidly happy that it’s been you and nobody else. Nobody will ever get me the way you do, we relate on so much, we’re weirdly interlinked, and honestly… I know it’s you I want beside me through      everything.
+
+          </p>
+          <p>
+But enough of that, Let’s talk about you now, why I fell for you and nobody else, why I believe you’re the one I want to spend eternity and why ur my 11.11 every time I do it.
+ Ur weirdly funny and ur jokes always make me smile (they’re a little corny but icl I find that so cute). Ur absolutely jaw droppingly gorgeous, ur insanely pretty, stunning, beautiful and just…. unreal. 
+You have the most gorgeous, absolutely encapsulating eyes, and an amazing smile that makes anyone smile, nobody wears a smile like you. I love seeing the sun shining through your hair and how effortlessly beautiful you are in every little moment. 
+To be able to call you mine is a gift in itself, it really is a blessing. We complement each other so well. You’re so naturally gifted and gorgeous, it’s the most amazing feeling ever to be enchanted by you. You’re all I’ve ever wanted in a girl, and somehow more.
+
+          </p>
+          <p>
+         I know I don’t like talking about the future, but I still always think of how our wedding could go, how Ill propose to ur short ass, how ill hand you that gold ring with a decent sized kinda round diamond on it. Let’s see if fate allows me to change your name from Ragha Victor Rajeevan to Ragha Victor Datt (okay that kinda sounds like shit).
+You make me feel so special every day, ur so caring and ALWAYS MAKE ME SO MANY HANDMADE PRESENTS AND I FEEL SO BAD, but it makes me feel like the luckiest guy to walk the planet at the same time. We  really are the perfect match, soulmates, if you saw how I look at our chats, ur snaps, or even you in real life, you’ll start to realise how much I love you and how deeply I’ve fallen in love with you. 
+
+          </p>
+          <p>
+           Ur the best yapper and I love ur yap sessions even if I forget them most of the time ☹. Ur an amazing sister to ur brother and an even better daughter to ur parents and they should be so proud of how amazing their daughter is. You remember so many little things I say, and I even love how nervous u sometimes get around me, because it reminds me that you care. 
+          </p>
+          <p>
+           I know our relationship hasn’t been the smoothest ride recently, but one thing has never changed, my love for you. I don’t wanna see myself with anyone but you, fights may seem like they bring people apart, but with the right person, they make you stronger. I really hope I can put a ring on that finger one day. 
+          </p>
+          <p>
+           If I could give you one thing today it would be certainty, I choose you and ill keep choosing you forever and ever. 
+          </p>
+          <p>
+           Thank you for being you. Thank you for letting me be yours. 
+            </p>
+          <p>
+           Happy Valentine’s day and 6th month anniversary my love,
+ here’s to many more
+          </p>
+          <p class="sign">Happy Valentine’s Day and 6 month anniversary ♥</p>
+          <p class="sign">— (Love, Raenav)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script>
+  
+  window.addEventListener("DOMContentLoaded", () => {
+  const noBtn = document.getElementById("noBtn");
+  const yesBtn = document.getElementById("yesBtn");
+  const promptText = document.getElementById("promptText");
+
+  const screenAsk = document.getElementById("screenAsk");
+  const screenLetter = document.getElementById("screenLetter");
+  const replayBtn = document.getElementById("replayBtn");
+
+  const floatLayer = document.getElementById("floatLayer");
+    function burstConfetti(count = 140){
+  const colors = [
+    "#ff4aa2",
+    "#ff7cc5",
+    "#ffd166",
+    "#8ecae6",
+    "#90f1ef",
+    "#bdb2ff",
+    "#a8ffcf",
+    "#ffffff"
+  ];
+
+  for(let i = 0; i < count; i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+
+    const size = 6 + Math.random() * 7;
+    c.style.width = size + "px";
+    c.style.height = size + "px";
+    c.style.background = colors[(Math.random() * colors.length) | 0];
+
+    const angle = Math.random() * Math.PI * 2;
+    const power = 120 + Math.random() * 520;
+    const dx = Math.cos(angle) * power;
+    const dy = Math.sin(angle) * power;
+
+    c.style.setProperty("--dx", dx + "px");
+    c.style.setProperty("--dy", dy + "px");
+    c.style.setProperty("--rot", (Math.random() * 720 - 360) + "deg");
+    c.style.setProperty("--dur", (650 + Math.random() * 650) + "ms");
+
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 1400);
+  }
+}
+// ===== Balloons (Screen 2) =====
+const balloonLayer = document.getElementById("balloonLayer");
+
+let balloons = [];
+let mouse = { x: 0, y: 0, active: false };
+let balloonTimer = null;
+let dragging = null;
+
+function rand(min, max){ return min + Math.random() * (max - min); }
+
+function spawnBalloon(){
+  if (!balloonLayer) return;
+
+  const b = document.createElement("div");
+  b.className = "balloon";
+
+  const colors = ["#ff4aa2","#ff7cc5","#ffd166","#8ecae6","#bdb2ff","#a8ffcf","#ffffff"];
+  b.style.background = colors[(Math.random() * colors.length) | 0];
+
+  const rect = screenLetter.getBoundingClientRect();
+
+  const x = rand(0.08, 0.92) * rect.width; // px
+  const size = rand(42, 64);
+
+  b.style.width = size + "px";
+  b.style.height = (size * 1.25) + "px";
+  b.style.left = x + "px";
+
+  balloonLayer.appendChild(b); // ✅ YOU WERE MISSING THIS
+
+balloons.push({
+  el: b,
+  x: x,
+  y: -120,
+  vx: rand(-1.2, 1.2),
+  vy: rand(0.8, 1.7),
+  rot: rand(-12, 12),
+  vr: rand(-0.35, 0.35),
+  r: size * 0.5,          // 👈 ADD THIS LINE
+  landed: false
+});
+}// <- end spawnBalloon
+function collideDraggedBalloon(dragI) {
+  const a = balloons[dragI];
+  if (!a) return;
+
+  for (let j = 0; j < balloons.length; j++) {
+    if (j === dragI) continue;
+
+    const b = balloons[j];
+
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const dist = Math.sqrt(dx*dx + dy*dy) || 0.001;
+    const minDist = a.r + b.r;
+
+    if (dist < minDist) {
+      const overlap = minDist - dist;
+      const nx = dx / dist;
+      const ny = dy / dist;
+
+      // push ONLY the other balloon
+      b.x += nx * overlap * 0.9;
+      b.y += ny * overlap * 0.9;
+
+      // add a bit of motion
+      b.vx += nx * 0.4;
+      b.vy += ny * 0.25;
+      b.vr += nx * 0.2;
+
+      // unstick from floor if bumped upward
+      if (b.landed && ny < -0.3) {
+        b.landed = false;
+      }
+    }
+  }
+}
+    
+function updateBalloons(){
+  const active = !screenLetter.classList.contains("hidden");
+  if (!active){
+    requestAnimationFrame(updateBalloons);
+    return;
+  }
+
+  const rect = screenLetter.getBoundingClientRect();
+  const floor = rect.height - 90;
+
+  for (let i = balloons.length - 1; i >= 0; i--) {
+  const p = balloons[i];
+
+  // 1) DRAG MODE: dragged balloon follows cursor, and collides with others
+  if (dragging && dragging.i === i) {
+    p.x = mouse.x + dragging.offX;
+    p.y = mouse.y + dragging.offY;
+
+    // clamp inside
+    p.x = Math.max(p.r, Math.min(rect.width - p.r, p.x));
+    p.y = Math.max(-200, Math.min(floor, p.y));
+
+    p.landed = false;
+    collideDraggedBalloon(dragging.i);
+
+  } else {
+    // 2) HOVER MODE: gentle push ONLY when not dragging
+    if (mouse.active) {
+      const dx = p.x - mouse.x;
+      const dy = p.y - mouse.y;
+      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+
+      const R = 70; // tight radius
+      if (dist < R) {
+        const t = 1 - dist / R;
+        const push = t * t;
+
+        p.vx += (dx / dist) * push * 1.2;
+        p.vy += (dy / dist) * push * 0.9;
+        p.vr += (dx / dist) * push * 0.25;
+
+        if (p.landed && dy < -12) p.landed = false;
+      }
+    }
+
+    // 3) NORMAL PHYSICS
+    if (!p.landed) {
+      p.vy += 0.06;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+
+      p.vx *= 0.985;
+      p.vy *= 0.985;
+      p.vr *= 0.985;
+
+      p.x = Math.max(p.r, Math.min(rect.width - p.r, p.x));
+
+      if (p.y >= floor) {
+        p.y = floor;
+        p.landed = true;
+        p.vy = 0;
+      }
+    } else {
+      p.x += p.vx;
+      p.rot += p.vr;
+
+      p.vx *= 0.92;
+      p.vr *= 0.92;
+
+      p.x = Math.max(p.r, Math.min(rect.width - p.r, p.x));
+      p.y = floor;
+    }
+  }
+
+  // 4) APPLY TO DOM (ONCE)
+  p.el.style.left = p.x + "px";
+  p.el.style.transform = `translate(-50%, ${p.y}px) rotate(${p.rot}deg)`;
+}
+
+
+
+    
+
+  requestAnimationFrame(updateBalloons);
+}
+requestAnimationFrame(updateBalloons);
+
+// mouse tracking on screen 2
+    
+screenLetter.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const r = screenLetter.getBoundingClientRect();
+  const mx = e.clientX - r.left;
+  const my = e.clientY - r.top;
+
+  mouse.x = mx;
+  mouse.y = my;
+  mouse.active = true;
+
+  for (let i = balloons.length - 1; i >= 0; i--) {
+    const p = balloons[i];
+    const dx = p.x - mx;
+    const dy = p.y - my;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (dist <= p.r) {
+      dragging = { i, offX: p.x - mx, offY: p.y - my };
+
+      p.el.classList.add("dragging");     // ✅ ADD
+      screenLetter.setPointerCapture?.(e.pointerId);
+
+      p.vx = 0; p.vy = 0; p.vr = 0;
+      p.landed = false;
+      break;
+    }
+  }
+});
+
+
+
+window.addEventListener("pointerup", (e) => {
+  screenLetter.releasePointerCapture?.(e.pointerId);
+
+  if (dragging) {
+    const p = balloons[dragging.i];
+    if (p) {
+      p.el.classList.remove("dragging");
+      p.vx *= 0.6;
+      p.vy *= 0.6;
+      p.vr *= 0.6;
+    }
+  }
+
+  dragging = null;
+});
+
+
+
+    
+screenLetter.addEventListener("pointermove", (e) => {
+  const r = screenLetter.getBoundingClientRect();
+  mouse.x = e.clientX - r.left;
+  mouse.y = e.clientY - r.top;
+  mouse.active = true;
+});
+
+screenLetter.addEventListener("pointerleave", () => {
+  mouse.active = false;
+});
+
+    
+window.addEventListener("pointercancel", (e) => {
+  screenLetter.releasePointerCapture?.(e.pointerId);
+
+  if (dragging) {
+    const p = balloons[dragging.i];
+    if (p) {
+      p.el.classList.remove("dragging");
+      p.vx *= 0.6;
+      p.vy *= 0.6;
+      p.vr *= 0.6;
+    }
+  }
+
+  dragging = null;
+});
+
+
+function startBalloons(){
+  if (balloonTimer) return;
+  for (let i = 0; i < 10; i++) spawnBalloon();
+  balloonTimer = setInterval(() => {
+    if (balloons.length < 28) spawnBalloon();
+  }, 420);
+}
+
+function stopBalloons(){
+  if (balloonTimer) clearInterval(balloonTimer);
+  balloonTimer = null;
+  balloons.forEach(b => b.el.remove());
+  balloons = [];
+}
+
+  const petals = document.querySelector(".petals");
+
+// --- visible parallax (moves the whole flowers background overlay) ---
+let targetX = 0, targetY = 0;
+let currentX = 0, currentY = 0;
+
+function animateParallax(){
+  currentX += (targetX - currentX) * 0.14;
+  currentY += (targetY - currentY) * 0.14;
+
+ // drives the .flowers::before transform via CSS variables
+screenAsk.style.setProperty("--px", (currentX * 40).toFixed(2) + "px");
+screenAsk.style.setProperty("--py", (currentY * 30).toFixed(2) + "px");
+
+// petals move more than the overlay (so it's obvious)
+if (petals && !screenAsk.classList.contains("hidden")) {
+  const tx = currentX * 60;
+  const ty = currentY * 45;
+  petals.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(1.06)`;
+}
+
+  requestAnimationFrame(animateParallax);
+}
+requestAnimationFrame(animateParallax);
+
+screenAsk.addEventListener("mousemove", (e) => {
+  const rect = screenAsk.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width;
+  const y = (e.clientY - rect.top) / rect.height;
+  targetX = (x - 0.5) * 2;
+  targetY = (y - 0.5) * 2;
+});
+
+screenAsk.addEventListener("mouseleave", () => {
+  targetX = 0;
+  targetY = 0;
+});
+
+  const prompts = [
+    "Are you sure?",
+    "Are you REALLY sure?",
+    "Think again 😐",
+    "This is your final answer?",
+    "You’re breaking the little sea lion’s heart…",
+    "Okay… last chance.",
+    "Nope, ur pissing me off. Try again 😌",
+    "sybau, ur pissing me off. Try again 😌"
+
+  ];
+
+  let noCount = 0;
+  let yesScale = 1;
+
+  function setYesScale() {
+    // clamp so it doesn't become ridiculous and break mobile layout
+    const clamped = Math.min(yesScale, 2.4);
+    document.documentElement.style.setProperty("--yesScale", clamped.toFixed(2));
+  }
+
+  function spawnFloaters(count = 26) {
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const el = document.createElement("div");
+        el.className = "floater";
+        el.textContent = Math.random() < 0.6 ? "♥" : "💗";
+        el.style.left = (Math.random() * 100) + "vw";
+        el.style.fontSize = (14 + Math.random() * 26) + "px";
+        const dur = 3 + Math.random() * 3.5;
+        el.style.animationDuration = dur + "s";
+        floatLayer.appendChild(el);
+        setTimeout(() => el.remove(), dur * 1000);
+      }, i * 45);
+    }
+  }
+
+  noBtn.addEventListener("click", () => {
+    const msg = prompts[Math.min(noCount, prompts.length - 1)];
+    promptText.textContent = msg;
+
+    noCount += 1;
+    yesScale *= 1.18;     // grows each "no"
+    setYesScale();
+
+    // small shake effect on the "No" button via JS transform
+    noBtn.style.transform = "translateX(-3px)";
+    setTimeout(() => noBtn.style.transform = "translateX(3px)", 70);
+    setTimeout(() => noBtn.style.transform = "translateX(0)", 140);
+
+    // optional: after a lot of "no", make No button subtly smaller
+    if (noCount >= 4) {
+      noBtn.style.filter = "opacity(0.85)";
+    }
+    if (noCount >= 7) {
+      noBtn.style.filter = "opacity(0.70)";
+    }
+  });
+
+yesBtn.addEventListener("click", () => {
+  burstConfetti(160);
+  spawnFloaters(34);
+
+  setTimeout(() => {
+    screenAsk.classList.add("hidden");
+    screenLetter.classList.remove("hidden");
+    startBalloons(); // ✅ start balloons now
+  }, 120);
+});
+
+
+  replayBtn.addEventListener("click", () => {
+    stopBalloons();
+    // reset state
+    noCount = 0;
+    yesScale = 1;
+    setYesScale();
+    promptText.textContent = "";
+    noBtn.style.filter = "opacity(1)";
+    screenLetter.classList.add("hidden");
+    screenAsk.classList.remove("hidden");
+    
+  });
+
+  // init
+  setYesScale();
+    });
+</script>
+</body>
+</html>
